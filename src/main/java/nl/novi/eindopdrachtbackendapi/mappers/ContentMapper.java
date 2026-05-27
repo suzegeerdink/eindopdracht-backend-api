@@ -1,6 +1,5 @@
 package nl.novi.eindopdrachtbackendapi.mappers;
 
-import nl.novi.eindopdrachtbackendapi.dtos.content.ContentRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.content.ContentResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.ContentEntity;
 import org.springframework.stereotype.Component;
