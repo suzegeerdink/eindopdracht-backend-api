@@ -2,6 +2,8 @@ package nl.novi.eindopdrachtbackendapi.entities;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table (name = "profile")
 public class ProfileEntity {
@@ -18,14 +20,14 @@ public class ProfileEntity {
     private String displayName;
 
     @Column(nullable = false)
-    private int age;
+    private LocalDate birthDate;
 
     public ProfileEntity() {}
 
-    public ProfileEntity(UserEntity user, String displayName, int age) {
+    public ProfileEntity(UserEntity user, String displayName, LocalDate birthDate) {
         this.user = user;
         this.displayName = displayName;
-        this.age = age;
+        this.birthDate = birthDate;
     }
 
     public Long getId() {
@@ -52,11 +54,11 @@ public class ProfileEntity {
         this.displayName = displayName;
     }
 
-    public int getAge() {
-        return age;
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 }

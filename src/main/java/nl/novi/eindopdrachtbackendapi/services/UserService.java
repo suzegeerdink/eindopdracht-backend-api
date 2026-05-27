@@ -60,11 +60,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO deleteUser(Long id) {
+    public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("user not found");
         }
         userRepository.deleteById(id);
-        return null;
     }
 }
