@@ -58,4 +58,12 @@ public class FilmService {
         FilmEntity filmUpdated = filmRepository.save(film);
         return FilmMapper.toDTO(filmUpdated);
     }
+
+    @Transactional
+    public void deleteFilmById(Long id) {
+        if (!filmRepository.existsById(id)) {
+            throw new RuntimeException("Film not found");
+        }
+        filmRepository.deleteById(id);
+    }
 }

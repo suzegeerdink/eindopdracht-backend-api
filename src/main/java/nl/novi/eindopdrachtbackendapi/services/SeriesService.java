@@ -4,6 +4,7 @@ import nl.novi.eindopdrachtbackendapi.dtos.series.SeriesRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.series.SeriesResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.SeriesEntity;
 import nl.novi.eindopdrachtbackendapi.mappers.SeriesMapper;
+import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.SeriesRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,5 +59,13 @@ public class SeriesService {
 
         SeriesEntity seriesUpdated = seriesRepository.save(series);
         return SeriesMapper.toDTO(seriesUpdated);
+    }
+
+    @Transactional
+    public void deleteSeriesById(Long id) {
+        if (!seriesRepository.existsById(id)) {
+            throw new RuntimeException("Series not found");
+        }
+        seriesRepository.deleteById(id);
     }
 }
