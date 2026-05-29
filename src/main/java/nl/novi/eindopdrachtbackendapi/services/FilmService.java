@@ -37,7 +37,7 @@ public class FilmService {
     @Transactional
     public FilmResponseDTO createFilm(FilmRequestDTO dto) {
         if (filmRepository.findByTitle(dto.getTitle()).isPresent()) {
-            throw new RuntimeException("film already exists");
+            throw new RuntimeException("Film already exists");
         }
 
         FilmEntity film = FilmMapper.toEntity(dto);
@@ -48,7 +48,7 @@ public class FilmService {
     @Transactional
     public FilmResponseDTO updateFilm(Long id, FilmRequestDTO dto) {
         FilmEntity film = filmRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("film not found"));
+                .orElseThrow(() -> new RuntimeException("Film not found"));
 
         film.setTitle(dto.getTitle());
         film.setDescription(dto.getDescription());
