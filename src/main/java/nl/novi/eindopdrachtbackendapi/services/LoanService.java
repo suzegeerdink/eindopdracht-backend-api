@@ -92,5 +92,4 @@ public class LoanService {
         }
         loanRepository.deleteById(id);
     }
-
 }
