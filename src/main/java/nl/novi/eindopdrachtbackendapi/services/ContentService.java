@@ -13,23 +13,25 @@ import java.util.stream.Collectors;
 @Service
 public class ContentService {
     private final ContentRepository contentRepository;
+    private final ContentMapper contentMapper;
 
-    public ContentService(ContentRepository contentRepository) {
+    public ContentService(ContentRepository contentRepository, ContentMapper contentMapper) {
         this.contentRepository = contentRepository;
+        this.contentMapper = contentMapper;
     }
 
     @Transactional(readOnly = true)
     public ContentResponseDTO getContentById(Long id) {
         ContentEntity content = contentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Content not found"));
-        return ContentMapper.toDTO(content);
+        return contentMapper.toDTO(content);
     }
 
     @Transactional(readOnly = true)
     public List<ContentResponseDTO> getAllContent() {
         List<ContentEntity> content = contentRepository.findAll();
         return content.stream()
-                .map(ContentMapper::toDTO)
+                .map(contentMapper::toDTO)
                 .collect(Collectors.toList());
     }
 

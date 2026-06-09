@@ -1,5 +1,7 @@
 package nl.novi.eindopdrachtbackendapi.dtos.content;
 
+import java.util.Objects;
+
 public class ContentResponseDTO {
     private Long id;
     private String title;
@@ -36,5 +38,20 @@ public class ContentResponseDTO {
 
     public void setAgeClassification(int ageClassification) {
         this.ageClassification = ageClassification;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ContentResponseDTO that = (ContentResponseDTO) o;
+        return ageClassification == that.ageClassification &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(title, that.title) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, ageClassification);
     }
 }
