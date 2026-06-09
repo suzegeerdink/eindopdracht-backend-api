@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class WatchHistoryMapper {
 
-    public static WatchHistoryResponseDTO toDTO(WatchHistoryEntity watchHistory) {
+    public WatchHistoryResponseDTO toDTO(WatchHistoryEntity watchHistory) {
         WatchHistoryResponseDTO dto = new WatchHistoryResponseDTO();
         dto.setId(watchHistory.getId());
         dto.setProfileId(watchHistory.getProfile().getId());
@@ -19,7 +19,7 @@ public class WatchHistoryMapper {
         return dto;
     }
 
-    public static WatchHistoryEntity toEntity(WatchHistoryRequestDTO dto, ContentEntity content, ProfileEntity profile) {
+    public WatchHistoryEntity toEntity(WatchHistoryRequestDTO dto, ContentEntity content, ProfileEntity profile) {
         WatchHistoryEntity watchHistory = new WatchHistoryEntity();
         watchHistory.setProfile(profile);
         watchHistory.setContent(content);

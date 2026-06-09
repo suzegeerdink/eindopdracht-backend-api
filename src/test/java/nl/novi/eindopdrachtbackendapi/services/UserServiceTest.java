@@ -77,7 +77,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_throwsExeption_whenEmailAlreadyExists() {
+    void createUser_throwsException_whenEmailAlreadyExists() {
         //Arrange
         UserRequestDTO requestDTO = new UserRequestDTO();
         requestDTO.setEmail("existing@email.com");

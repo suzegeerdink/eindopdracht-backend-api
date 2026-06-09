@@ -21,27 +21,31 @@ public class WatchHistoryService {
     private final WatchHistoryRepository watchHistoryRepository;
     private final ProfileRepository profileRepository;
     private final ContentRepository contentRepository;
+    private final WatchHistoryMapper watchHistoryMapper;
 
     public WatchHistoryService(WatchHistoryRepository watchHistoryRepository,
                                ProfileRepository profileRepository,
-                               ContentRepository contentRepository) {
+                               ContentRepository contentRepository,
+                               WatchHistoryMapper watchHistoryMapper) {
         this.watchHistoryRepository = watchHistoryRepository;
         this.profileRepository = profileRepository;
         this.contentRepository = contentRepository;
+        this.watchHistoryMapper = watchHistoryMapper;
+
     }
 
     @Transactional(readOnly = true)
     public WatchHistoryResponseDTO getWatchHistoryById(Long id) {
         WatchHistoryEntity watchHistory = watchHistoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("WatchHistory not found"));
-        return WatchHistoryMapper.toDTO(watchHistory);
+        return watchHistoryMapper.toDTO(watchHistory);
     }
 
     @Transactional(readOnly = true)
     public List<WatchHistoryResponseDTO> getAllWatchHistories() {
         List<WatchHistoryEntity> watchHistories = watchHistoryRepository.findAll();
         return watchHistories.stream()
-                .map(WatchHistoryMapper::toDTO)
+                .map(watchHistoryMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -53,11 +57,11 @@ public class WatchHistoryService {
         ContentEntity content = contentRepository.findById(dto.getContentId())
                 .orElseThrow(() -> new RuntimeException("Content not found"));
 
-        WatchHistoryEntity watchHistory = WatchHistoryMapper.toEntity(dto, content, profile);
+        WatchHistoryEntity watchHistory = watchHistoryMapper.toEntity(dto, content, profile);
         watchHistory.setWatchDate(LocalDate.now());
 
         WatchHistoryEntity createdWatchHistory = watchHistoryRepository.save(watchHistory);
-        return WatchHistoryMapper.toDTO(createdWatchHistory);
+        return watchHistoryMapper.toDTO(createdWatchHistory);
     }
 
     @Transactional
@@ -75,7 +79,7 @@ public class WatchHistoryService {
         watchHistory.setProfile(profile);
 
         WatchHistoryEntity updatedWatchHistory = watchHistoryRepository.save(watchHistory);
-        return WatchHistoryMapper.toDTO(updatedWatchHistory);
+        return watchHistoryMapper.toDTO(updatedWatchHistory);
     }
 
     @Transactional
