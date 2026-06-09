@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -78,5 +79,36 @@ class ContentServiceTest {
         assertEquals(2, result.size());
         assertEquals(contentdto1, result.get(0));
         assertEquals(contentdto2, result.get(1));
+    }
+
+    @Test
+    void getContentById_shouldReturnContentResponseDTO() {
+
+        //Arrange
+        FilmEntity contentEntity1 = new FilmEntity();
+        contentEntity1.setId(10L);
+        contentEntity1.setTitle("matrix");
+
+        ContentResponseDTO contentdto1 = new ContentResponseDTO();
+        contentdto1.setId(10L);
+        contentdto1.setTitle("The Matrix");
+
+        when(contentRepository.findById(10L)).thenReturn(Optional.of(contentEntity1));
+        when(contentMapper.toDTO(contentEntity1)).thenReturn(contentdto1);
+
+        //Act
+        ContentResponseDTO result = contentService.getContentById(10L);
+
+        // Assert
+        assertEquals(contentdto1, result);
+    }
+
+    @Test
+    void getContentById_throwsException_whenContentNotFound() {
+        //Arrange
+        when(contentRepository.findById(555L)).thenReturn(Optional.empty());
+
+        //Assert & Act
+        assertThrows(RuntimeException.class, () -> contentService.getContentById(555L));
     }
 }
