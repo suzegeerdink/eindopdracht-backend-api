@@ -15,23 +15,25 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     @Transactional(readOnly = true)
     public UserResponseDTO getUserById(Long id) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("user not found"));
-        return UserMapper.toDTO(user);
+        return userMapper.toDTO(user);
     }
 
     @Transactional(readOnly = true)
     public List<UserResponseDTO> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
         return users.stream()
-                .map(UserMapper::toDTO)
+                .map(userMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -41,9 +43,9 @@ public class UserService {
             throw new RuntimeException("user already exists");
         }
 
-        UserEntity user = UserMapper.toEntity(dto);
+        UserEntity user = userMapper.toEntity(dto);
         UserEntity createdUser = userRepository.save(user);
-        return UserMapper.toDTO(createdUser);
+        return userMapper.toDTO(createdUser);
     }
 
     @Transactional
@@ -56,7 +58,7 @@ public class UserService {
         user.setRole(dto.getRole());
 
         UserEntity updatedUser = userRepository.save(user);
-        return UserMapper.toDTO(updatedUser);
+        return userMapper.toDTO(updatedUser);
     }
 
     @Transactional

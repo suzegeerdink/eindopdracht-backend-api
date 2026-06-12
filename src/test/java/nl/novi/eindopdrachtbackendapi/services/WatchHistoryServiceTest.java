@@ -4,7 +4,6 @@ import nl.novi.eindopdrachtbackendapi.dtos.watchhisory.WatchHistoryRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.watchhisory.WatchHistoryResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.FilmEntity;
 import nl.novi.eindopdrachtbackendapi.entities.ProfileEntity;
-import nl.novi.eindopdrachtbackendapi.entities.UserEntity;
 import nl.novi.eindopdrachtbackendapi.entities.WatchHistoryEntity;
 import nl.novi.eindopdrachtbackendapi.mappers.WatchHistoryMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
@@ -16,8 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.nio.file.WatchService;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,5 +71,42 @@ class WatchHistoryServiceTest {
 
         //Assert
         assertEquals(99L, result.getId());
+    }
+
+    @Test
+    void getAllWatchHistories_shouldReturnListOfWatchHistoryResponseDTOs() {
+        //Arrange
+        WatchHistoryResponseDTO watchHistoryDto1 = new WatchHistoryResponseDTO();
+        watchHistoryDto1.setId(100L);
+
+        WatchHistoryResponseDTO watchHistoryDto2 = new WatchHistoryResponseDTO();
+        watchHistoryDto2.setId(101L);
+
+        WatchHistoryResponseDTO watchHistoryDto3 = new WatchHistoryResponseDTO();
+        watchHistoryDto3.setId(102L);
+
+
+        WatchHistoryEntity watchHistoryEntity1 = new WatchHistoryEntity();
+        watchHistoryEntity1.setId(100L);
+
+        WatchHistoryEntity watchHistoryEntity2 = new WatchHistoryEntity();
+        watchHistoryEntity2.setId(101L);
+
+        WatchHistoryEntity watchHistoryEntity3 = new WatchHistoryEntity();
+        watchHistoryEntity3.setId(102L);
+
+        when(watchHistoryRepository.findAll()).thenReturn(Arrays.asList(watchHistoryEntity1, watchHistoryEntity2, watchHistoryEntity3));
+        when(watchHistoryMapper.toDTO(watchHistoryEntity1)).thenReturn(watchHistoryDto1);
+        when(watchHistoryMapper.toDTO(watchHistoryEntity2)).thenReturn(watchHistoryDto2);
+        when(watchHistoryMapper.toDTO(watchHistoryEntity3)).thenReturn(watchHistoryDto3);
+
+        //Act
+        List<WatchHistoryResponseDTO> result = watchHistoryService.getAllWatchHistories();
+
+        //Assert
+        assertEquals(3, result.size());
+        assertEquals(watchHistoryDto1, result.get(0));
+        assertEquals(watchHistoryDto2, result.get(1));
+        assertEquals(watchHistoryDto3, result.get(2));
     }
 }

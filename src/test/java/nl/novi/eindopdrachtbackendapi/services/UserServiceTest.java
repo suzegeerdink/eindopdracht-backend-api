@@ -26,6 +26,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private UserMapper userMapper;
+
     @InjectMocks
     private UserService userService;
 
@@ -35,15 +38,19 @@ class UserServiceTest {
         UserEntity userEntity = new UserEntity("test@email.com", "password", Role.USER);
         userEntity.setId(1L);
 
+        UserResponseDTO userResponseDTO = new UserResponseDTO();
+        userResponseDTO.setId(1L);
+        userResponseDTO.setEmail("test@email");
+        userResponseDTO.setRole(Role.USER);
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
+        when(userMapper.toDTO(userEntity)).thenReturn(userResponseDTO);
 
         //Act
         UserResponseDTO result = userService.getUserById(1L);
 
         //Assert
-        assertEquals(1L, result.getId());
-        assertEquals("test@email.com",  result.getEmail());
-        assertEquals(Role.USER, result.getRole());
+        assertEquals(userResponseDTO, result);
     }
 
     @Test
@@ -65,15 +72,21 @@ class UserServiceTest {
 
         UserEntity userEntity = new UserEntity("new_user@email.com", "1234", Role.USER);
 
+
+        UserResponseDTO userResponseDTO = new UserResponseDTO();
+        userResponseDTO.setEmail("new_user@email.com");
+        userResponseDTO.setRole(Role.USER);
+
         when(userRepository.findByEmail("new_user@email.com")).thenReturn(Optional.empty());
+        when(userMapper.toEntity(requestDTO)).thenReturn(userEntity);
         when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+        when(userMapper.toDTO(userEntity)).thenReturn(userResponseDTO);
 
         //Act
         UserResponseDTO result = userService.createUser(requestDTO);
 
         //Assert
-        assertEquals("new_user@email.com",  result.getEmail());
-        assertEquals(Role.USER, result.getRole());
+        assertEquals(userResponseDTO, result);
     }
 
     @Test
@@ -95,14 +108,25 @@ class UserServiceTest {
         UserEntity user2 = new UserEntity("user2@email.com", "5678",  Role.ADMIN);
         List<UserEntity> users = List.of(user1, user2);
 
+        UserResponseDTO userResponseDTO1 = new UserResponseDTO();
+        userResponseDTO1.setEmail("user1@email.com");
+        userResponseDTO1.setRole(Role.USER);
+
+        UserResponseDTO userResponseDTO2 = new UserResponseDTO();
+        userResponseDTO2.setEmail("user2@email.com");
+        userResponseDTO2.setRole(Role.ADMIN);
+
         when(userRepository.findAll()).thenReturn(users);
+        when(userMapper.toDTO(user1)).thenReturn(userResponseDTO1);
+        when(userMapper.toDTO(user2)).thenReturn(userResponseDTO2);
 
         //Act
         List<UserResponseDTO> result = userService.getAllUsers();
 
         //Assert
         assertEquals(2, result.size());
-        assertEquals("user1@email.com", result.get(0).getEmail());
+        assertEquals(userResponseDTO1, result.get(0));
+        assertEquals(userResponseDTO2, result.get(1));
     }
 
 }
