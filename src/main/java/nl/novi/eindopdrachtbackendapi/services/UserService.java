@@ -5,6 +5,7 @@ import nl.novi.eindopdrachtbackendapi.dtos.user.UserResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.UserEntity;
 import nl.novi.eindopdrachtbackendapi.mappers.UserMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.UserRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserResponseDTO> getAllUsers() {
-        List<UserEntity> users = userRepository.findAll();
+        List<UserEntity> users = userRepository.findAll(Sort.by("id"));
         return users.stream()
                 .map(userMapper::toDTO)
                 .collect(Collectors.toList());
