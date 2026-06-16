@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoanMapper {
 
-    public static LoanResponseDTO toDTO(LoanEntity loan) {
+    public LoanResponseDTO toDTO(LoanEntity loan) {
         LoanResponseDTO dto = new LoanResponseDTO();
         dto.setId(loan.getId());
         dto.setProfileId(loan.getProfile().getId());
@@ -19,7 +19,7 @@ public class LoanMapper {
         return dto;
     }
 
-    public static LoanEntity toEntity(LoanRequestDTO dto, ContentEntity content, ProfileEntity profile) {
+    public LoanEntity toEntity(LoanRequestDTO dto, ContentEntity content, ProfileEntity profile) {
         LoanEntity loan = new LoanEntity();
         loan.setProfile(profile);
         loan.setContent(content);
