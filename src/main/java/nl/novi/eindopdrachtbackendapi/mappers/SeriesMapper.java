@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SeriesMapper {
 
-    public static SeriesResponseDTO toDTO(SeriesEntity series) {
+    public SeriesResponseDTO toDTO(SeriesEntity series) {
         SeriesResponseDTO dto = new SeriesResponseDTO();
         dto.setId(series.getId());
         dto.setTitle(series.getTitle());
@@ -19,7 +19,7 @@ public class SeriesMapper {
         return dto;
     }
 
-    public static SeriesEntity toEntity(SeriesRequestDTO dto) {
+    public SeriesEntity toEntity(SeriesRequestDTO dto) {
         SeriesEntity series = new SeriesEntity();
         series.setTitle(dto.getTitle());
         series.setDescription(dto.getDescription());
