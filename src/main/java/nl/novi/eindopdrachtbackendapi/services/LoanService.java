@@ -9,6 +9,7 @@ import nl.novi.eindopdrachtbackendapi.mappers.LoanMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.LoanRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.ProfileRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,27 +21,38 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final ProfileRepository profileRepository;
     private final ContentRepository contentRepository;
+    private final LoanMapper loanMapper;
 
     public LoanService(LoanRepository loanRepository,
                        ProfileRepository profileRepository,
-                       ContentRepository contentRepository) {
+                       ContentRepository contentRepository,
+                       LoanMapper loanMapper) {
         this.loanRepository = loanRepository;
         this.profileRepository = profileRepository;
         this.contentRepository = contentRepository;
+        this.loanMapper = loanMapper;
     }
 
     @Transactional(readOnly = true)
     public LoanResponseDTO getLoanById(Long id) {
         LoanEntity loan = loanRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Loan not found"));
-        return LoanMapper.toDTO(loan);
+        return loanMapper.toDTO(loan);
     }
 
     @Transactional(readOnly = true)
     public List<LoanResponseDTO> getAllLoans() {
-        List<LoanEntity> loans = loanRepository.findAll();
+        List<LoanEntity> loans = loanRepository.findAll(Sort.by("id"));
         return loans.stream()
-                .map(LoanMapper::toDTO)
+                .map(loanMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<LoanResponseDTO> getAllLoansByProfileId(Long profileId) {
+        List<LoanEntity> loansProfile = loanRepository.findAllByProfileId(profileId);
+        return loansProfile.stream()
+                .map(loanMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -52,9 +64,9 @@ public class LoanService {
         ContentEntity content = contentRepository.findById(dto.getContentId())
                 .orElseThrow(() -> new RuntimeException("Content not found"));
 
-        LoanEntity loan = LoanMapper.toEntity(dto, content, profile);
+        LoanEntity loan = loanMapper.toEntity(dto, content, profile);
         LoanEntity createdLoan = loanRepository.save(loan);
-        return LoanMapper.toDTO(createdLoan);
+        return loanMapper.toDTO(createdLoan);
     }
 
     @Transactional
@@ -72,7 +84,7 @@ public class LoanService {
         loan.setProfile(profile);
 
         LoanEntity updatedLoan = loanRepository.save(loan);
-        return LoanMapper.toDTO(updatedLoan);
+        return loanMapper.toDTO(updatedLoan);
     }
 
     @Transactional
@@ -82,7 +94,7 @@ public class LoanService {
 
         loan.setLoanedOut(false);
         LoanEntity updatedLoan = loanRepository.save(loan);
-        return LoanMapper.toDTO(updatedLoan);
+        return loanMapper.toDTO(updatedLoan);
     }
 
     @Transactional

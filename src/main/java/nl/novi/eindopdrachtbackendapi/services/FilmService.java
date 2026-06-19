@@ -5,6 +5,7 @@ import nl.novi.eindopdrachtbackendapi.dtos.film.FilmResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.FilmEntity;
 import nl.novi.eindopdrachtbackendapi.mappers.FilmMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.FilmRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,23 +15,25 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     private final FilmRepository filmRepository;
+    private final FilmMapper filmMapper;
 
-    public FilmService(FilmRepository filmRepository) {
+    public FilmService(FilmRepository filmRepository,  FilmMapper filmMapper) {
         this.filmRepository = filmRepository;
+        this.filmMapper = filmMapper;
     }
 
     @Transactional(readOnly = true)
     public FilmResponseDTO getFilmById(Long id) {
         FilmEntity film = filmRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Film not found"));
-        return FilmMapper.toDTO(film);
+        return filmMapper.toDTO(film);
     }
 
     @Transactional(readOnly = true)
     public List<FilmResponseDTO> getAllFilms() {
-        List<FilmEntity> films = filmRepository.findAll();
+        List<FilmEntity> films = filmRepository.findAll(Sort.by("id"));
         return films.stream()
-                .map(FilmMapper::toDTO)
+                .map(filmMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -40,9 +43,9 @@ public class FilmService {
             throw new RuntimeException("Film already exists");
         }
 
-        FilmEntity film = FilmMapper.toEntity(dto);
+        FilmEntity film = filmMapper.toEntity(dto);
         FilmEntity createdFilm = filmRepository.save(film);
-        return FilmMapper.toDTO(createdFilm);
+        return filmMapper.toDTO(createdFilm);
     }
 
     @Transactional
@@ -56,7 +59,7 @@ public class FilmService {
         film.setAgeClassification(dto.getAgeClassification());
 
         FilmEntity filmUpdated = filmRepository.save(film);
-        return FilmMapper.toDTO(filmUpdated);
+        return filmMapper.toDTO(filmUpdated);
     }
 
     @Transactional
