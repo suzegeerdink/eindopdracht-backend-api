@@ -1,5 +1,6 @@
 package nl.novi.eindopdrachtbackendapi.controllers;
 
+import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileResponseDTO;
 import nl.novi.eindopdrachtbackendapi.services.ProfileService;
@@ -20,7 +21,7 @@ public class ProfileController {
     }
 
     @PostMapping
-    public ResponseEntity<ProfileResponseDTO> createProfile(@RequestBody ProfileRequestDTO profileRequestDTO) {
+    public ResponseEntity<ProfileResponseDTO> createProfile(@Valid @RequestBody ProfileRequestDTO profileRequestDTO) {
         ProfileResponseDTO createdProfile = profileService.createProfile(profileRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProfile);
     }
@@ -38,7 +39,7 @@ public class ProfileController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProfileResponseDTO> updateProfile(@PathVariable Long id, @RequestBody ProfileRequestDTO profileRequestDTO) {
+    public ResponseEntity<ProfileResponseDTO> updateProfile(@PathVariable Long id, @Valid @RequestBody ProfileRequestDTO profileRequestDTO) {
         ProfileResponseDTO updatedProfile = profileService.updateProfile(id, profileRequestDTO);
         return ResponseEntity.ok(updatedProfile);
     }

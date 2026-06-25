@@ -1,5 +1,6 @@
 package nl.novi.eindopdrachtbackendapi.controllers;
 
+import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.loan.LoanRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.loan.LoanResponseDTO;
 import nl.novi.eindopdrachtbackendapi.services.LoanService;
@@ -20,7 +21,7 @@ public class LoanController {
     }
 
     @PostMapping
-    public ResponseEntity<LoanResponseDTO> createLoan(@RequestBody LoanRequestDTO loanRequestDTO) {
+    public ResponseEntity<LoanResponseDTO> createLoan(@Valid @RequestBody LoanRequestDTO loanRequestDTO) {
         LoanResponseDTO loanResponseDTO = loanService.createLoan(loanRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(loanResponseDTO);
     }
@@ -44,7 +45,7 @@ public class LoanController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LoanResponseDTO> updateLoan(@PathVariable Long id, @RequestBody LoanRequestDTO loanRequestDTO) {
+    public ResponseEntity<LoanResponseDTO> updateLoan(@PathVariable Long id, @Valid @RequestBody LoanRequestDTO loanRequestDTO) {
         LoanResponseDTO updatedLoan = loanService.updateLoan(id, loanRequestDTO);
         return ResponseEntity.ok(updatedLoan);
     }

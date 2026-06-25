@@ -21,7 +21,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public ResponseEntity<FilmResponseDTO> createFilm(@RequestBody FilmRequestDTO filmRequestDTO) {
+    public ResponseEntity<FilmResponseDTO> createFilm(@Valid @RequestBody FilmRequestDTO filmRequestDTO) {
         FilmResponseDTO createdFilm = filmService.createFilm(filmRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);
     }
@@ -39,7 +39,7 @@ public class FilmController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FilmResponseDTO> updateFilm(@PathVariable Long id, @RequestBody FilmRequestDTO filmRequestDTO) {
+    public ResponseEntity<FilmResponseDTO> updateFilm(@PathVariable Long id, @Valid @RequestBody FilmRequestDTO filmRequestDTO) {
         FilmResponseDTO updatedFilm = filmService.updateFilm(id, filmRequestDTO);
         return ResponseEntity.ok(updatedFilm);
     }

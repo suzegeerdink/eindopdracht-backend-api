@@ -1,5 +1,6 @@
 package nl.novi.eindopdrachtbackendapi.controllers;
 
+import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.series.SeriesRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.series.SeriesResponseDTO;
 import nl.novi.eindopdrachtbackendapi.services.SeriesService;
@@ -20,7 +21,7 @@ public class SeriesController {
     }
 
     @PostMapping
-    public ResponseEntity<SeriesResponseDTO> createSeries(@RequestBody SeriesRequestDTO seriesRequestDTO) {
+    public ResponseEntity<SeriesResponseDTO> createSeries(@Valid @RequestBody SeriesRequestDTO seriesRequestDTO) {
         SeriesResponseDTO createdSeries = seriesService.createSeries(seriesRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSeries);
     }
@@ -38,7 +39,7 @@ public class SeriesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SeriesResponseDTO> updateSeries(@PathVariable Long id, @RequestBody SeriesRequestDTO seriesRequestDTO) {
+    public ResponseEntity<SeriesResponseDTO> updateSeries(@PathVariable Long id, @Valid @RequestBody SeriesRequestDTO seriesRequestDTO) {
         SeriesResponseDTO updatedSeries = seriesService.updateSeries(id, seriesRequestDTO);
         return ResponseEntity.ok(updatedSeries);
     }

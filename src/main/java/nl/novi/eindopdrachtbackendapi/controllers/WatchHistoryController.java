@@ -1,5 +1,6 @@
 package nl.novi.eindopdrachtbackendapi.controllers;
 
+import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.watchhisory.WatchHistoryRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.watchhisory.WatchHistoryResponseDTO;
 import nl.novi.eindopdrachtbackendapi.services.WatchHistoryService;
@@ -20,7 +21,7 @@ public class WatchHistoryController {
     }
 
     @PostMapping
-    public ResponseEntity<WatchHistoryResponseDTO> createWatchHistory(@RequestBody WatchHistoryRequestDTO watchHistoryRequestDTO) {
+    public ResponseEntity<WatchHistoryResponseDTO> createWatchHistory(@Valid @RequestBody WatchHistoryRequestDTO watchHistoryRequestDTO) {
         WatchHistoryResponseDTO createdWatchHistory = watchHistoryService.createWatchHistory(watchHistoryRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdWatchHistory);
     }
@@ -38,7 +39,7 @@ public class WatchHistoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<WatchHistoryResponseDTO> updateWatchHistory(@PathVariable Long id, @RequestBody WatchHistoryRequestDTO watchHistoryRequestDTO) {
+    public ResponseEntity<WatchHistoryResponseDTO> updateWatchHistory(@PathVariable Long id, @Valid @RequestBody WatchHistoryRequestDTO watchHistoryRequestDTO) {
         WatchHistoryResponseDTO updatedWatchHistory = watchHistoryService.updateWatchHistory(id, watchHistoryRequestDTO);
         return ResponseEntity.ok().body(updatedWatchHistory);
     }

@@ -1,11 +1,11 @@
 package nl.novi.eindopdrachtbackendapi.dtos.watchhisory;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class WatchHistoryRequestDTO {
-    @NotBlank
+    @NotNull
     Long profileId;
-    @NotBlank
+    @NotNull
     Long contentId;
 
     public Long getProfileId() {
