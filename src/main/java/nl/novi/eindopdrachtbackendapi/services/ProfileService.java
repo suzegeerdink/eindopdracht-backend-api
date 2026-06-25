@@ -5,6 +5,7 @@ import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.ProfileEntity;
 import nl.novi.eindopdrachtbackendapi.entities.UserEntity;
+import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.ProfileMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ProfileRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.UserRepository;
@@ -29,7 +30,7 @@ public class ProfileService {
     @Transactional(readOnly = true)
     public ProfileResponseDTO getProfileById(Long id) {
         ProfileEntity profile = profileRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
         return ProfileMapper.toDTO(profile);
     }
 
@@ -44,7 +45,7 @@ public class ProfileService {
     @Transactional
     public ProfileResponseDTO createProfile(ProfileRequestDTO dto) {
         UserEntity user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ProfileEntity profile = ProfileMapper.toEntity(dto, user);
         ProfileEntity createdProfile = profileRepository.save(profile);
@@ -54,7 +55,7 @@ public class ProfileService {
     @Transactional
     public ProfileResponseDTO updateProfile(Long id, ProfileRequestDTO dto) {
         ProfileEntity profile =  profileRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         profile.setBirthDate(dto.getBirthDate());
         profile.setDisplayName(dto.getDisplayName());
@@ -66,7 +67,7 @@ public class ProfileService {
     @Transactional
     public void deleteProfile(Long id) {
         if (!profileRepository.existsById(id)) {
-            throw new RuntimeException("Profile not found");
+            throw new ResourceNotFoundException("Profile not found");
         }
         profileRepository.deleteById(id);
     }
@@ -77,7 +78,7 @@ public class ProfileService {
 
     public boolean canAccessAdultContent(Long profileId, int ageClassification) {
         ProfileEntity profile = profileRepository.findById(profileId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         int age = calculateAge(profile.getBirthDate());
         return age >= ageClassification;

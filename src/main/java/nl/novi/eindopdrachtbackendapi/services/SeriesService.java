@@ -3,6 +3,8 @@ package nl.novi.eindopdrachtbackendapi.services;
 import nl.novi.eindopdrachtbackendapi.dtos.series.SeriesRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.series.SeriesResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.SeriesEntity;
+import nl.novi.eindopdrachtbackendapi.exceptions.DuplicateResourceException;
+import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.SeriesMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.SeriesRepository;
@@ -26,7 +28,7 @@ public class SeriesService {
     @Transactional(readOnly = true)
     public SeriesResponseDTO getSeriesById(Long id) {
         SeriesEntity series = seriesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Series not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Series not found"));
         return seriesMapper.toDTO(series);
     }
 
@@ -41,7 +43,7 @@ public class SeriesService {
     @Transactional
     public SeriesResponseDTO createSeries(SeriesRequestDTO dto) {
         if (seriesRepository.findByTitle(dto.getTitle()).isPresent()) {
-            throw new RuntimeException("Series already exists");
+            throw new DuplicateResourceException("Series already exists");
         }
 
         SeriesEntity series = seriesMapper.toEntity(dto);
@@ -52,7 +54,7 @@ public class SeriesService {
     @Transactional
     public SeriesResponseDTO updateSeries(Long id, SeriesRequestDTO dto) {
         SeriesEntity series = seriesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Series not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Series not found"));
 
         series.setTitle(dto.getTitle());
         series.setDescription(dto.getDescription());
@@ -67,7 +69,7 @@ public class SeriesService {
     @Transactional
     public void deleteSeriesById(Long id) {
         if (!seriesRepository.existsById(id)) {
-            throw new RuntimeException("Series not found");
+            throw new ResourceNotFoundException("Series not found");
         }
         seriesRepository.deleteById(id);
     }

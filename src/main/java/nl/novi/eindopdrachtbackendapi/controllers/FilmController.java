@@ -1,5 +1,6 @@
 package nl.novi.eindopdrachtbackendapi.controllers;
 
+import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.film.FilmRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.film.FilmResponseDTO;
 import nl.novi.eindopdrachtbackendapi.services.FilmService;

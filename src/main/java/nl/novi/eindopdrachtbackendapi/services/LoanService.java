@@ -5,6 +5,7 @@ import nl.novi.eindopdrachtbackendapi.dtos.loan.LoanResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.ContentEntity;
 import nl.novi.eindopdrachtbackendapi.entities.LoanEntity;
 import nl.novi.eindopdrachtbackendapi.entities.ProfileEntity;
+import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.LoanMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.LoanRepository;
@@ -59,10 +60,10 @@ public class LoanService {
     @Transactional
     public LoanResponseDTO createLoan(LoanRequestDTO dto) {
         ProfileEntity profile = profileRepository.findById(dto.getProfileId())
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         ContentEntity content = contentRepository.findById(dto.getContentId())
-                .orElseThrow(() -> new RuntimeException("Content not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Content not found"));
 
         LoanEntity loan = loanMapper.toEntity(dto, content, profile);
         LoanEntity createdLoan = loanRepository.save(loan);
@@ -72,13 +73,13 @@ public class LoanService {
     @Transactional
     public LoanResponseDTO updateLoan(Long id, LoanRequestDTO dto) {
         LoanEntity loan = loanRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Loan not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
 
         ProfileEntity profile = profileRepository.findById(dto.getProfileId())
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         ContentEntity content = contentRepository.findById(dto.getContentId())
-                .orElseThrow(() -> new RuntimeException("Content not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Content not found"));
 
         loan.setContent(content);
         loan.setProfile(profile);
@@ -90,7 +91,7 @@ public class LoanService {
     @Transactional
     public LoanResponseDTO returnLoan(Long id) {
         LoanEntity loan = loanRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Loan not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
 
         loan.setLoanedOut(false);
         LoanEntity updatedLoan = loanRepository.save(loan);
@@ -100,7 +101,7 @@ public class LoanService {
     @Transactional
     public void deleteLoan(Long id) {
         if (!loanRepository.existsById(id)) {
-            throw new RuntimeException("Loan not found");
+            throw new ResourceNotFoundException("Loan not found");
         }
         loanRepository.deleteById(id);
     }

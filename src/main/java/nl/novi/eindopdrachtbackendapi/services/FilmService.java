@@ -3,6 +3,8 @@ package nl.novi.eindopdrachtbackendapi.services;
 import nl.novi.eindopdrachtbackendapi.dtos.film.FilmRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.film.FilmResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.FilmEntity;
+import nl.novi.eindopdrachtbackendapi.exceptions.DuplicateResourceException;
+import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.FilmMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.FilmRepository;
 import org.springframework.data.domain.Sort;
@@ -25,7 +27,7 @@ public class FilmService {
     @Transactional(readOnly = true)
     public FilmResponseDTO getFilmById(Long id) {
         FilmEntity film = filmRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Film not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Film not found"));
         return filmMapper.toDTO(film);
     }
 
@@ -40,7 +42,7 @@ public class FilmService {
     @Transactional
     public FilmResponseDTO createFilm(FilmRequestDTO dto) {
         if (filmRepository.findByTitle(dto.getTitle()).isPresent()) {
-            throw new RuntimeException("Film already exists");
+            throw new DuplicateResourceException("Film already exists");
         }
 
         FilmEntity film = filmMapper.toEntity(dto);
@@ -51,7 +53,7 @@ public class FilmService {
     @Transactional
     public FilmResponseDTO updateFilm(Long id, FilmRequestDTO dto) {
         FilmEntity film = filmRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Film not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Film not found"));
 
         film.setTitle(dto.getTitle());
         film.setDescription(dto.getDescription());
@@ -65,7 +67,7 @@ public class FilmService {
     @Transactional
     public void deleteFilmById(Long id) {
         if (!filmRepository.existsById(id)) {
-            throw new RuntimeException("Film not found");
+            throw new ResourceNotFoundException("Film not found");
         }
         filmRepository.deleteById(id);
     }
