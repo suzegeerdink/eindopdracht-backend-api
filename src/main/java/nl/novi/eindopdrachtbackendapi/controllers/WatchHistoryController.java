@@ -1,12 +1,15 @@
 package nl.novi.eindopdrachtbackendapi.controllers;
 
+import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.watchhisory.WatchHistoryRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.watchhisory.WatchHistoryResponseDTO;
+import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.WatchHistoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -14,15 +17,18 @@ import java.util.List;
 public class WatchHistoryController {
 
     private final WatchHistoryService watchHistoryService;
+    private final UrlHelper urlHelper;
 
-    public WatchHistoryController(WatchHistoryService watchHistoryService) {
+    public WatchHistoryController(WatchHistoryService watchHistoryService, UrlHelper urlHelper) {
         this.watchHistoryService = watchHistoryService;
+        this.urlHelper = urlHelper;
     }
 
     @PostMapping
-    public ResponseEntity<WatchHistoryResponseDTO> createWatchHistory(@RequestBody WatchHistoryRequestDTO watchHistoryRequestDTO) {
+    public ResponseEntity<WatchHistoryResponseDTO> createWatchHistory(@Valid @RequestBody WatchHistoryRequestDTO watchHistoryRequestDTO) {
         WatchHistoryResponseDTO createdWatchHistory = watchHistoryService.createWatchHistory(watchHistoryRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdWatchHistory);
+        URI location = urlHelper.getCurrentUrlWithId(createdWatchHistory.getId());
+        return ResponseEntity.created(location).body(createdWatchHistory);
     }
 
     @GetMapping
@@ -38,7 +44,7 @@ public class WatchHistoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<WatchHistoryResponseDTO> updateWatchHistory(@PathVariable Long id, @RequestBody WatchHistoryRequestDTO watchHistoryRequestDTO) {
+    public ResponseEntity<WatchHistoryResponseDTO> updateWatchHistory(@PathVariable Long id, @Valid @RequestBody WatchHistoryRequestDTO watchHistoryRequestDTO) {
         WatchHistoryResponseDTO updatedWatchHistory = watchHistoryService.updateWatchHistory(id, watchHistoryRequestDTO);
         return ResponseEntity.ok().body(updatedWatchHistory);
     }

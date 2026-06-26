@@ -5,6 +5,7 @@ import nl.novi.eindopdrachtbackendapi.dtos.watchhisory.WatchHistoryResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.ContentEntity;
 import nl.novi.eindopdrachtbackendapi.entities.ProfileEntity;
 import nl.novi.eindopdrachtbackendapi.entities.WatchHistoryEntity;
+import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.WatchHistoryMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.ProfileRepository;
@@ -37,7 +38,7 @@ public class WatchHistoryService {
     @Transactional(readOnly = true)
     public WatchHistoryResponseDTO getWatchHistoryById(Long id) {
         WatchHistoryEntity watchHistory = watchHistoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("WatchHistory not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("WatchHistory not found"));
         return watchHistoryMapper.toDTO(watchHistory);
     }
 
@@ -52,10 +53,10 @@ public class WatchHistoryService {
     @Transactional
     public WatchHistoryResponseDTO createWatchHistory(WatchHistoryRequestDTO dto) {
         ProfileEntity profile = profileRepository.findById(dto.getProfileId())
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         ContentEntity content = contentRepository.findById(dto.getContentId())
-                .orElseThrow(() -> new RuntimeException("Content not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Content not found"));
 
         WatchHistoryEntity watchHistory = watchHistoryMapper.toEntity(dto, content, profile);
         watchHistory.setWatchDate(LocalDate.now());
@@ -67,13 +68,13 @@ public class WatchHistoryService {
     @Transactional
     public WatchHistoryResponseDTO updateWatchHistory(Long id, WatchHistoryRequestDTO dto) {
         WatchHistoryEntity watchHistory = watchHistoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("WatchHistory not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("WatchHistory not found"));
 
         ProfileEntity profile = profileRepository.findById(dto.getProfileId())
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         ContentEntity content = contentRepository.findById(dto.getContentId())
-                .orElseThrow(() -> new RuntimeException("Content not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Content not found"));
 
         watchHistory.setContent(content);
         watchHistory.setProfile(profile);
@@ -85,7 +86,7 @@ public class WatchHistoryService {
     @Transactional
     public void deleteWatchHistory(Long id) {
         if (!watchHistoryRepository.existsById(id)) {
-            throw new RuntimeException("WatchHistory not found");
+            throw new ResourceNotFoundException("WatchHistory not found");
         }
         watchHistoryRepository.deleteById(id);
     }

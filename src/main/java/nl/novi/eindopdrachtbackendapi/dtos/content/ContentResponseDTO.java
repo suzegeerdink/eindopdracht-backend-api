@@ -1,5 +1,6 @@
 package nl.novi.eindopdrachtbackendapi.dtos.content;
 
+import java.util.List;
 import java.util.Objects;
 
 public class ContentResponseDTO {
@@ -7,6 +8,7 @@ public class ContentResponseDTO {
     private String title;
     private String description;
     private int ageClassification;
+    private List<String> genres;
 
     public Long getId() {
         return id;
@@ -38,6 +40,14 @@ public class ContentResponseDTO {
 
     public void setAgeClassification(int ageClassification) {
         this.ageClassification = ageClassification;
+    }
+
+    public List<String> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
     }
 
     @Override

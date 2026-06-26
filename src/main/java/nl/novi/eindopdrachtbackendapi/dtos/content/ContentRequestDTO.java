@@ -1,13 +1,17 @@
 package nl.novi.eindopdrachtbackendapi.dtos.content;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 
 public class ContentRequestDTO {
     @NotBlank
+    @Size(min = 1, max = 100)
     private String title;
     @NotBlank
+    @Size(min = 10, max = 500)
     private String description;
-    @NotBlank
+    @NotNull
+    @Min(0)
+    @Max(21)
     private int ageClassification;
 
     public String getTitle() {

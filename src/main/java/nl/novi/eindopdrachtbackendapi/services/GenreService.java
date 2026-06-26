@@ -3,6 +3,8 @@ package nl.novi.eindopdrachtbackendapi.services;
 import nl.novi.eindopdrachtbackendapi.dtos.genre.GenreRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.genre.GenreResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.GenreEntity;
+import nl.novi.eindopdrachtbackendapi.exceptions.DuplicateResourceException;
+import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.GenreMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.GenreRepository;
 import org.springframework.data.domain.Sort;
@@ -25,7 +27,7 @@ public class GenreService {
     @Transactional(readOnly = true)
     public GenreResponseDTO getGenreById(Long id) {
         GenreEntity genre = genreRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Genre not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Genre not found"));
         return genreMapper.toDTO(genre);
     }
 
@@ -40,7 +42,7 @@ public class GenreService {
     @Transactional
     public GenreResponseDTO createGenre(GenreRequestDTO dto) {
         if (genreRepository.findByName(dto.getName()).isPresent()) {
-            throw new RuntimeException("Genre with name " + dto.getName() + " already exists");
+            throw new DuplicateResourceException("Genre with name " + dto.getName() + " already exists");
         }
 
         GenreEntity genre = genreMapper.toEntity(dto);
@@ -51,7 +53,7 @@ public class GenreService {
     @Transactional
     public void deleteGenreById(Long id) {
         if (!genreRepository.existsById(id)) {
-            throw new RuntimeException("genre not found");
+            throw new ResourceNotFoundException("Genre not found");
         }
         genreRepository.deleteById(id);
     }

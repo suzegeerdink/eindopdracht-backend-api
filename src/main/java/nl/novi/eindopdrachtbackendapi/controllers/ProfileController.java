@@ -1,12 +1,15 @@
 package nl.novi.eindopdrachtbackendapi.controllers;
 
+import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileResponseDTO;
+import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -14,15 +17,18 @@ import java.util.List;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final UrlHelper urlHelper;
 
-    public ProfileController(ProfileService profileService) {
+    public ProfileController(ProfileService profileService, UrlHelper urlHelper) {
         this.profileService = profileService;
+        this.urlHelper = urlHelper;
     }
 
     @PostMapping
-    public ResponseEntity<ProfileResponseDTO> createProfile(@RequestBody ProfileRequestDTO profileRequestDTO) {
+    public ResponseEntity<ProfileResponseDTO> createProfile(@Valid @RequestBody ProfileRequestDTO profileRequestDTO) {
         ProfileResponseDTO createdProfile = profileService.createProfile(profileRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProfile);
+        URI location = urlHelper.getCurrentUrlWithId(createdProfile.getId());
+        return ResponseEntity.created(location).body(createdProfile);
     }
 
     @GetMapping
@@ -38,7 +44,7 @@ public class ProfileController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProfileResponseDTO> updateProfile(@PathVariable Long id, @RequestBody ProfileRequestDTO profileRequestDTO) {
+    public ResponseEntity<ProfileResponseDTO> updateProfile(@PathVariable Long id, @Valid @RequestBody ProfileRequestDTO profileRequestDTO) {
         ProfileResponseDTO updatedProfile = profileService.updateProfile(id, profileRequestDTO);
         return ResponseEntity.ok(updatedProfile);
     }

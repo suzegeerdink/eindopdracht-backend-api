@@ -1,12 +1,15 @@
 package nl.novi.eindopdrachtbackendapi.controllers;
 
+import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.user.UserRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.user.UserResponseDTO;
+import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -14,15 +17,18 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UrlHelper urlHelper;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UrlHelper urlHelper) {
         this.userService = userService;
+        this.urlHelper = urlHelper;
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         UserResponseDTO createdUser = userService.createUser(userRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        URI location = urlHelper.getCurrentUrlWithId(createdUser.getId());
+        return ResponseEntity.created(location).body(createdUser);
     }
 
     @GetMapping
@@ -38,7 +44,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequestDTO userRequestDTO) {
         UserResponseDTO updatedUser = userService.updateUser(id, userRequestDTO);
         return ResponseEntity.ok(updatedUser);
     }

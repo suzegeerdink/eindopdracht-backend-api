@@ -2,7 +2,10 @@ package nl.novi.eindopdrachtbackendapi.mappers;
 
 import nl.novi.eindopdrachtbackendapi.dtos.content.ContentResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.ContentEntity;
+import nl.novi.eindopdrachtbackendapi.entities.GenreEntity;
 import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
 
 @Component
 public class ContentMapper {
@@ -13,6 +16,9 @@ public class ContentMapper {
         dto.setTitle(content.getTitle());
         dto.setDescription(content.getDescription());
         dto.setAgeClassification(content.getAgeClassification());
+        dto.setGenres(content.getGenres().stream()
+                .map(GenreEntity::getName)
+                .collect(Collectors.toList()));
         return dto;
     }
 }

@@ -29,6 +29,12 @@ public class ContentController {
         return ResponseEntity.ok(contentResponseDTO);
     }
 
+    @PutMapping("/{id}/genres")
+    public ResponseEntity<ContentResponseDTO> addGenresToContent(@PathVariable Long id, @RequestBody List<Long> genreIds) {
+        ContentResponseDTO updatedContent = contentService.addGenresToContent(id, genreIds);
+        return ResponseEntity.ok(updatedContent);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteContentById(@PathVariable Long id) {
         contentService.deleteContentById(id);

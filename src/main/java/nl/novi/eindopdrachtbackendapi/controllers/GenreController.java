@@ -1,12 +1,15 @@
 package nl.novi.eindopdrachtbackendapi.controllers;
 
+import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.genre.GenreRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.genre.GenreResponseDTO;
+import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.GenreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -14,15 +17,18 @@ import java.util.List;
 public class GenreController {
 
     private final GenreService genreService;
+    private final UrlHelper urlHelper;
 
-    public GenreController(GenreService genreService) {
+    public GenreController(GenreService genreService, UrlHelper urlHelper) {
         this.genreService = genreService;
+        this.urlHelper = urlHelper;
     }
 
     @PostMapping
-    public ResponseEntity<GenreResponseDTO> createGenre(@RequestBody GenreRequestDTO genreRequestDTO) {
+    public ResponseEntity<GenreResponseDTO> createGenre(@Valid @RequestBody GenreRequestDTO genreRequestDTO) {
         GenreResponseDTO createdGenre = genreService.createGenre(genreRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdGenre);
+        URI location = urlHelper.getCurrentUrlWithId(createdGenre.getId());
+        return ResponseEntity.created(location).body(createdGenre);
     }
 
     @GetMapping
