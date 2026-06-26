@@ -2,6 +2,9 @@ package nl.novi.eindopdrachtbackendapi.entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "content")
@@ -19,6 +22,14 @@ public abstract class ContentEntity {
 
     @Column (nullable = false)
     private int ageClassification;
+
+    @ManyToMany
+    @JoinTable(
+            name = "content_genre",
+            joinColumns = @JoinColumn(name = "content_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private List<GenreEntity> genres = new ArrayList<>();
 
     public ContentEntity() {}
 
@@ -58,5 +69,13 @@ public abstract class ContentEntity {
 
     public void setAgeClassification(int ageClassification) {
         this.ageClassification = ageClassification;
+    }
+
+    public List<GenreEntity> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<GenreEntity> genres) {
+        this.genres = genres;
     }
 }
