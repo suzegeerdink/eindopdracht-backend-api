@@ -1,5 +1,7 @@
-package nl.novi.eindopdrachtbackendapi.exceptions;
+package nl.novi.eindopdrachtbackendapi.helpers;
 
+import nl.novi.eindopdrachtbackendapi.exceptions.DuplicateResourceException;
+import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

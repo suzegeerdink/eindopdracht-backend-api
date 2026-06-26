@@ -3,11 +3,13 @@ package nl.novi.eindopdrachtbackendapi.controllers;
 import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.loan.LoanRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.loan.LoanResponseDTO;
+import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.LoanService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -15,15 +17,18 @@ import java.util.List;
 public class LoanController {
 
     private final LoanService loanService;
+    private final UrlHelper urlHelper;
 
-    public LoanController(LoanService loanService) {
+    public LoanController(LoanService loanService, UrlHelper urlHelper) {
         this.loanService = loanService;
+        this.urlHelper = urlHelper;
     }
 
     @PostMapping
     public ResponseEntity<LoanResponseDTO> createLoan(@Valid @RequestBody LoanRequestDTO loanRequestDTO) {
-        LoanResponseDTO loanResponseDTO = loanService.createLoan(loanRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(loanResponseDTO);
+        LoanResponseDTO createdLoan = loanService.createLoan(loanRequestDTO);
+        URI location = urlHelper.getCurrentUrlWithId(createdLoan.getId());
+        return ResponseEntity.created(location).body(createdLoan);
     }
 
     @GetMapping

@@ -3,11 +3,13 @@ package nl.novi.eindopdrachtbackendapi.controllers;
 import jakarta.validation.Valid;
 import nl.novi.eindopdrachtbackendapi.dtos.film.FilmRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.film.FilmResponseDTO;
+import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.FilmService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -15,15 +17,18 @@ import java.util.List;
 public class FilmController {
 
     private final FilmService filmService;
+    private final UrlHelper urlHelper;
 
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService,  UrlHelper urlHelper) {
         this.filmService = filmService;
+        this.urlHelper = urlHelper;
     }
 
     @PostMapping
     public ResponseEntity<FilmResponseDTO> createFilm(@Valid @RequestBody FilmRequestDTO filmRequestDTO) {
         FilmResponseDTO createdFilm = filmService.createFilm(filmRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);
+        URI location = urlHelper.getCurrentUrlWithId(createdFilm.getId());
+        return ResponseEntity.created(location).body(createdFilm);
     }
 
     @GetMapping
