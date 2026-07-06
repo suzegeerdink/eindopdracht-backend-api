@@ -5,9 +5,9 @@ import nl.novi.eindopdrachtbackendapi.dtos.series.SeriesRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.series.SeriesResponseDTO;
 import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.SeriesService;
-import nl.novi.eindopdrachtbackendapi.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -26,6 +26,7 @@ public class SeriesController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('CONTENT_MANAGER')")
     public ResponseEntity<SeriesResponseDTO> createSeries(@Valid @RequestBody SeriesRequestDTO seriesRequestDTO) {
         SeriesResponseDTO createdSeries = seriesService.createSeries(seriesRequestDTO);
         URI location = urlHelper.getCurrentUrlWithId(createdSeries.getId());
@@ -45,12 +46,14 @@ public class SeriesController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('CONTENT_MANAGER')")
     public ResponseEntity<SeriesResponseDTO> updateSeries(@PathVariable Long id, @Valid @RequestBody SeriesRequestDTO seriesRequestDTO) {
         SeriesResponseDTO updatedSeries = seriesService.updateSeries(id, seriesRequestDTO);
         return ResponseEntity.ok(updatedSeries);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('CONTENT_MANAGER')")
     public ResponseEntity<Void> deleteSeriesById(@PathVariable Long id) {
         seriesService.deleteSeriesById(id);
         return ResponseEntity.noContent().build();

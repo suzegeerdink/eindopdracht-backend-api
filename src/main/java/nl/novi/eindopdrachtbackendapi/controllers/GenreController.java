@@ -5,8 +5,8 @@ import nl.novi.eindopdrachtbackendapi.dtos.genre.GenreRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.genre.GenreResponseDTO;
 import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.GenreService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -25,6 +25,7 @@ public class GenreController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('CONTENT_MANAGER')")
     public ResponseEntity<GenreResponseDTO> createGenre(@Valid @RequestBody GenreRequestDTO genreRequestDTO) {
         GenreResponseDTO createdGenre = genreService.createGenre(genreRequestDTO);
         URI location = urlHelper.getCurrentUrlWithId(createdGenre.getId());
@@ -44,6 +45,7 @@ public class GenreController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('CONTENT_MANAGER')")
     public ResponseEntity<Void> deleteGenreById(@PathVariable Long id) {
         genreService.deleteGenreById(id);
         return ResponseEntity.noContent().build();

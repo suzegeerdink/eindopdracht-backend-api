@@ -7,6 +7,7 @@ import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -25,6 +26,7 @@ public class UserController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         UserResponseDTO createdUser = userService.createUser(userRequestDTO);
         URI location = urlHelper.getCurrentUrlWithId(createdUser.getId());
@@ -32,24 +34,28 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<UserResponseDTO> getAllUsers = userService.getAllUsers();
         return ResponseEntity.ok(getAllUsers);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         UserResponseDTO getUserById = userService.getUserById(id);
         return ResponseEntity.ok(getUserById);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequestDTO userRequestDTO) {
         UserResponseDTO updatedUser = userService.updateUser(id, userRequestDTO);
         return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
