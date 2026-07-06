@@ -22,6 +22,9 @@ public class ProfileEntity {
     @Column(nullable = false)
     private LocalDate birthDate;
 
+    @OneToOne(mappedBy = "profile", cascade = CascadeType.ALL)
+    private ProfileSettingsEntity settings;
+
     public ProfileEntity() {}
 
     public ProfileEntity(UserEntity user, String displayName, LocalDate birthDate) {
@@ -60,5 +63,17 @@ public class ProfileEntity {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public void setSettings(ProfileSettingsEntity settings) {
+        this.settings = settings;
+
+        if (settings != null) {
+            settings.setProfile(this);
+        }
+    }
+
+    public ProfileSettingsEntity getSettings() {
+        return settings;
     }
 }

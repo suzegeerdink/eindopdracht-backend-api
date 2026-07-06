@@ -4,6 +4,7 @@ package nl.novi.eindopdrachtbackendapi.services;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.ProfileEntity;
+import nl.novi.eindopdrachtbackendapi.entities.ProfileSettingsEntity;
 import nl.novi.eindopdrachtbackendapi.entities.UserEntity;
 import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.ProfileMapper;
@@ -48,6 +49,15 @@ public class ProfileService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ProfileEntity profile = ProfileMapper.toEntity(dto, user);
+
+        ProfileSettingsEntity settings = new ProfileSettingsEntity(
+                true,
+                "nl",
+                profile
+        );
+
+        profile.setSettings(settings);
+
         ProfileEntity createdProfile = profileRepository.save(profile);
         return ProfileMapper.toDTO(createdProfile);
     }
