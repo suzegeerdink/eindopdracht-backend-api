@@ -5,8 +5,8 @@ import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileResponseDTO;
 import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.ProfileService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -32,24 +32,28 @@ public class ProfileController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ProfileResponseDTO>> getAllProfiles() {
         List<ProfileResponseDTO> getAllProfiles = profileService.getAllProfiles();
         return ResponseEntity.ok(getAllProfiles);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProfileResponseDTO> getProfileById(@PathVariable Long id) {
         ProfileResponseDTO getProfileById = profileService.getProfileById(id);
         return ResponseEntity.ok(getProfileById);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<ProfileResponseDTO> updateProfile(@PathVariable Long id, @Valid @RequestBody ProfileRequestDTO profileRequestDTO) {
         ProfileResponseDTO updatedProfile = profileService.updateProfile(id, profileRequestDTO);
         return ResponseEntity.ok(updatedProfile);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Void> deleteProfile(@PathVariable Long id) {
         profileService.deleteProfile(id);
         return ResponseEntity.noContent().build();

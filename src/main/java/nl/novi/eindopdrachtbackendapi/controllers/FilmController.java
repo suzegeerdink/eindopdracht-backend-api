@@ -7,6 +7,7 @@ import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.FilmService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -25,6 +26,7 @@ public class FilmController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('CONTENT_MANAGER')")
     public ResponseEntity<FilmResponseDTO> createFilm(@Valid @RequestBody FilmRequestDTO filmRequestDTO) {
         FilmResponseDTO createdFilm = filmService.createFilm(filmRequestDTO);
         URI location = urlHelper.getCurrentUrlWithId(createdFilm.getId());
@@ -44,12 +46,14 @@ public class FilmController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('CONTENT_MANAGER')")
     public ResponseEntity<FilmResponseDTO> updateFilm(@PathVariable Long id, @Valid @RequestBody FilmRequestDTO filmRequestDTO) {
         FilmResponseDTO updatedFilm = filmService.updateFilm(id, filmRequestDTO);
         return ResponseEntity.ok(updatedFilm);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('CONTENT_MANAGER')")
     public ResponseEntity<Void> deleteFilmById(@PathVariable Long id) {
         filmService.deleteFilmById(id);
         return ResponseEntity.noContent().build();
