@@ -19,6 +19,11 @@ public class ContentMapper {
         dto.setGenres(content.getGenres().stream()
                 .map(GenreEntity::getName)
                 .collect(Collectors.toList()));
+
+        dto.setFileName(content.getFileName());
+        dto.setContentType(content.getContentType());
+        dto.setHasFile(content.getFileData() != null);
+
         return dto;
     }
 }

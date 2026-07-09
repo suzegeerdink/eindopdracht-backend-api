@@ -9,7 +9,9 @@ import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.GenreRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,12 @@ public class ContentService {
     private final ContentRepository contentRepository;
     private final ContentMapper contentMapper;
     private final GenreRepository genreRepository;
+
+    private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
+            "image/jpeg", "image/png", "image/gif", "image/webp",
+            "audio/mpeg", "audio/wav", "audio/ogg",
+            "application/pdf"
+    );
 
     public ContentService(ContentRepository contentRepository, ContentMapper contentMapper,  GenreRepository genreRepository) {
         this.contentRepository = contentRepository;
@@ -59,5 +67,34 @@ public class ContentService {
             throw new ResourceNotFoundException("Content not found");
         }
         contentRepository.deleteById(id);
+    }
+
+    @Transactional
+    public ContentResponseDTO attachFile(Long id, MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("Geüpload bestand is leeg");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException(
+                    "Ongeldig bestandstype: " + contentType + ". Alleen afbeeldingen, muziek en pdf's zijn toegestaan.");
+        }
+
+        ContentEntity content = contentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Content not found"));
+
+        content.setFileData(file.getBytes());
+        content.setFileName(file.getOriginalFilename());
+        content.setContentType(contentType);
+
+        ContentEntity saved = contentRepository.save(content);
+        return contentMapper.toDTO(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public ContentEntity getContentEntityById(Long id) {
+        return contentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Content not found"));
     }
 }

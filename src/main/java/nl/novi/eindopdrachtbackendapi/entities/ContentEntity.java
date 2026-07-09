@@ -31,6 +31,16 @@ public abstract class ContentEntity {
     )
     private List<GenreEntity> genres = new ArrayList<>();
 
+    @Lob
+    @Column(name = "file_data")
+    private byte[] fileData;
+
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "content_type")
+    private String contentType;
+
     public ContentEntity() {}
 
     public ContentEntity(String title, String description, int ageClassification) {
@@ -78,4 +88,13 @@ public abstract class ContentEntity {
     public void setGenres(List<GenreEntity> genres) {
         this.genres = genres;
     }
+
+    public byte[] getFileData() { return fileData; }
+    public void setFileData(byte[] fileData) { this.fileData = fileData; }
+
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
+
+    public String getContentType() { return contentType; }
+    public void setContentType(String contentType) { this.contentType = contentType; }
 }
