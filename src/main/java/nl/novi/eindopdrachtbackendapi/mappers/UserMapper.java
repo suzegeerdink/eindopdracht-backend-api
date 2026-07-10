@@ -12,15 +12,13 @@ public class UserMapper {
         UserResponseDTO dto = new UserResponseDTO();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
-        dto.setRole(user.getRole());
         return dto;
     }
 
-    public UserEntity toEntity(UserRequestDTO dto) {
+    public UserEntity toEntity(UserRequestDTO dto, String keycloakId) {
         UserEntity user = new UserEntity();
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
-        user.setRole(dto.getRole());
+        user.setKeycloakId(keycloakId);
         return user;
     }
 }

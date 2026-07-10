@@ -41,12 +41,16 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO createUser(UserRequestDTO dto) {
+    public UserResponseDTO createUser(UserRequestDTO dto, String keycloakId) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new DuplicateResourceException("user already exists");
         }
 
-        UserEntity user = userMapper.toEntity(dto);
+        if (userRepository.findByKeycloakId(keycloakId).isPresent()) {
+            throw new DuplicateResourceException("user profile already exists for this account");
+        }
+
+        UserEntity user = userMapper.toEntity(dto, keycloakId);
         UserEntity createdUser = userRepository.save(user);
         return userMapper.toDTO(createdUser);
     }
@@ -57,8 +61,6 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("user not found"));
 
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
-        user.setRole(dto.getRole());
 
         UserEntity updatedUser = userRepository.save(user);
         return userMapper.toDTO(updatedUser);

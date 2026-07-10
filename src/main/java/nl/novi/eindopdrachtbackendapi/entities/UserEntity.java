@@ -1,7 +1,6 @@
 package nl.novi.eindopdrachtbackendapi.entities;
 
 import jakarta.persistence.*;
-import nl.novi.eindopdrachtbackendapi.enums.Role;
 
 @Entity
 @Table(name = "users")
@@ -14,19 +13,13 @@ public class UserEntity {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false)
-    private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
+    @Column(name = "keycloak_id", unique = true)
+    private String keycloakId;
 
     public UserEntity() {}
 
-    public UserEntity(String email, String password, Role role) {
+    public UserEntity(String email) {
         this.email = email;
-        this.password = password;
-        this.role = role;
     }
 
     public Long getId() {
@@ -45,19 +38,7 @@ public class UserEntity {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
+    public String getKeycloakId() { return keycloakId; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
+    public void setKeycloakId(String keycloakId) { this.keycloakId = keycloakId; }
 }
