@@ -7,6 +7,7 @@ import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.ContentMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.GenreRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,7 +67,12 @@ public class ContentService {
         if (!contentRepository.existsById(id)) {
             throw new ResourceNotFoundException("Content not found");
         }
-        contentRepository.deleteById(id);
+        try {
+            contentRepository.deleteById(id);
+            contentRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Cannot delete content: content is still referenced by one or more loans or watch history entries");
+        }
     }
 
     @Transactional

@@ -10,6 +10,7 @@ import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.ProfileMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ProfileRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +80,12 @@ public class ProfileService {
         if (!profileRepository.existsById(id)) {
             throw new ResourceNotFoundException("Profile not found");
         }
-        profileRepository.deleteById(id);
+        try {
+            profileRepository.deleteById(id);
+            profileRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Cannot delete profile: profile still has associated loans or watch history entries");
+        }
     }
 
     public int calculateAge(LocalDate birthDate) {
