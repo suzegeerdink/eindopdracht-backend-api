@@ -23,7 +23,7 @@ public class LoanMapper {
         LoanEntity loan = new LoanEntity();
         loan.setProfile(profile);
         loan.setContent(content);
-        loan.setLoanedOut(true);
+        loan.setLoanedOut(dto.getLoanedOut());
         return loan;
     }
 }
