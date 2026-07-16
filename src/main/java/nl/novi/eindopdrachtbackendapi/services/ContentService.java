@@ -4,6 +4,7 @@ import nl.novi.eindopdrachtbackendapi.dtos.content.ContentResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.ContentEntity;
 import nl.novi.eindopdrachtbackendapi.entities.GenreEntity;
 import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
+import nl.novi.eindopdrachtbackendapi.helpers.ContentDeletionHelper;
 import nl.novi.eindopdrachtbackendapi.mappers.ContentMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.GenreRepository;
@@ -21,6 +22,7 @@ public class ContentService {
     private final ContentRepository contentRepository;
     private final ContentMapper contentMapper;
     private final GenreRepository genreRepository;
+    private final ContentDeletionHelper contentDeletionHelper;
 
     private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
             "image/jpeg", "image/png", "image/gif", "image/webp",
@@ -28,10 +30,11 @@ public class ContentService {
             "application/pdf"
     );
 
-    public ContentService(ContentRepository contentRepository, ContentMapper contentMapper,  GenreRepository genreRepository) {
+    public ContentService(ContentRepository contentRepository, ContentMapper contentMapper,  GenreRepository genreRepository, ContentDeletionHelper contentDeletionHelper) {
         this.contentRepository = contentRepository;
         this.contentMapper = contentMapper;
         this.genreRepository = genreRepository;
+        this.contentDeletionHelper = contentDeletionHelper;
     }
 
     @Transactional(readOnly = true)
@@ -67,12 +70,10 @@ public class ContentService {
         if (!contentRepository.existsById(id)) {
             throw new ResourceNotFoundException("Content not found");
         }
-        try {
+        contentDeletionHelper.deleteAndHandleIntegrity(() -> {
             contentRepository.deleteById(id);
             contentRepository.flush();
-        } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("Cannot delete content: content is still referenced by one or more loans or watch history entries");
-        }
+        });
     }
 
     @Transactional

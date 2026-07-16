@@ -5,6 +5,7 @@ import nl.novi.eindopdrachtbackendapi.dtos.film.FilmResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.FilmEntity;
 import nl.novi.eindopdrachtbackendapi.exceptions.DuplicateResourceException;
 import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
+import nl.novi.eindopdrachtbackendapi.helpers.ContentDeletionHelper;
 import nl.novi.eindopdrachtbackendapi.mappers.FilmMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.FilmRepository;
 import org.springframework.data.domain.Sort;
@@ -18,10 +19,12 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmRepository filmRepository;
     private final FilmMapper filmMapper;
+    private final ContentDeletionHelper contentDeletionHelper;
 
-    public FilmService(FilmRepository filmRepository,  FilmMapper filmMapper) {
+    public FilmService(FilmRepository filmRepository,  FilmMapper filmMapper,  ContentDeletionHelper contentDeletionHelper) {
         this.filmRepository = filmRepository;
         this.filmMapper = filmMapper;
+        this.contentDeletionHelper = contentDeletionHelper;
     }
 
     @Transactional(readOnly = true)
@@ -69,6 +72,10 @@ public class FilmService {
         if (!filmRepository.existsById(id)) {
             throw new ResourceNotFoundException("Film not found");
         }
-        filmRepository.deleteById(id);
+        contentDeletionHelper.deleteAndHandleIntegrity(() -> {
+            filmRepository.deleteById(id);
+            filmRepository.flush();
+        });
+
     }
 }

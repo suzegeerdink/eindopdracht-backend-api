@@ -5,6 +5,7 @@ import nl.novi.eindopdrachtbackendapi.dtos.series.SeriesResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.SeriesEntity;
 import nl.novi.eindopdrachtbackendapi.exceptions.DuplicateResourceException;
 import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
+import nl.novi.eindopdrachtbackendapi.helpers.ContentDeletionHelper;
 import nl.novi.eindopdrachtbackendapi.mappers.SeriesMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.SeriesRepository;
@@ -19,10 +20,12 @@ import java.util.stream.Collectors;
 public class SeriesService {
     private final SeriesRepository seriesRepository;
     private final SeriesMapper seriesMapper;
+    private final ContentDeletionHelper contentDeletionHelper;
 
-    public SeriesService(SeriesRepository seriesRepository,  SeriesMapper seriesMapper) {
+    public SeriesService(SeriesRepository seriesRepository,  SeriesMapper seriesMapper,  ContentDeletionHelper contentDeletionHelper) {
         this.seriesRepository = seriesRepository;
         this.seriesMapper = seriesMapper;
+        this.contentDeletionHelper = contentDeletionHelper;
     }
 
     @Transactional(readOnly = true)
@@ -71,6 +74,10 @@ public class SeriesService {
         if (!seriesRepository.existsById(id)) {
             throw new ResourceNotFoundException("Series not found");
         }
-        seriesRepository.deleteById(id);
+        contentDeletionHelper.deleteAndHandleIntegrity(() -> {
+            seriesRepository.deleteById(id);
+            seriesRepository.flush();
+        });
+
     }
 }
