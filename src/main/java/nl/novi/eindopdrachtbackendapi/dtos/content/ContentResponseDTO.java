@@ -10,6 +10,10 @@ public class ContentResponseDTO {
     private int ageClassification;
     private List<String> genres;
 
+    private String fileName;
+    private String contentType;
+    private boolean hasFile;
+
     public Long getId() {
         return id;
     }
@@ -48,6 +52,30 @@ public class ContentResponseDTO {
 
     public void setGenres(List<String> genres) {
         this.genres = genres;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public boolean isHasFile() {
+        return hasFile;
+    }
+
+    public void setHasFile(boolean hasFile) {
+        this.hasFile = hasFile;
     }
 
     @Override

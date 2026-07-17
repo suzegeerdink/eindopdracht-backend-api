@@ -23,15 +23,17 @@ public class LoanService {
     private final ProfileRepository profileRepository;
     private final ContentRepository contentRepository;
     private final LoanMapper loanMapper;
+    private final ProfileService profileService;
 
     public LoanService(LoanRepository loanRepository,
                        ProfileRepository profileRepository,
                        ContentRepository contentRepository,
-                       LoanMapper loanMapper) {
+                       LoanMapper loanMapper, ProfileService profileService) {
         this.loanRepository = loanRepository;
         this.profileRepository = profileRepository;
         this.contentRepository = contentRepository;
         this.loanMapper = loanMapper;
+        this.profileService = profileService;
     }
 
     @Transactional(readOnly = true)
@@ -65,6 +67,11 @@ public class LoanService {
         ContentEntity content = contentRepository.findById(dto.getContentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Content not found"));
 
+        if (!profileService.canAccessAdultContent(profile.getId(), content.getAgeClassification())) {
+            throw new IllegalStateException(
+                    "Profile does not meet the minimum age requirement for this content");
+        }
+
         LoanEntity loan = loanMapper.toEntity(dto, content, profile);
         LoanEntity createdLoan = loanRepository.save(loan);
         return loanMapper.toDTO(createdLoan);
@@ -83,6 +90,7 @@ public class LoanService {
 
         loan.setContent(content);
         loan.setProfile(profile);
+        loan.setLoanedOut(dto.getLoanedOut());
 
         LoanEntity updatedLoan = loanRepository.save(loan);
         return loanMapper.toDTO(updatedLoan);

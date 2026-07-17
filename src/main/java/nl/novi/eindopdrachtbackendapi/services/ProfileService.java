@@ -4,11 +4,13 @@ package nl.novi.eindopdrachtbackendapi.services;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.profile.ProfileResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.ProfileEntity;
+import nl.novi.eindopdrachtbackendapi.entities.ProfileSettingsEntity;
 import nl.novi.eindopdrachtbackendapi.entities.UserEntity;
 import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.ProfileMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ProfileRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +50,15 @@ public class ProfileService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ProfileEntity profile = ProfileMapper.toEntity(dto, user);
+
+        ProfileSettingsEntity settings = new ProfileSettingsEntity(
+                true,
+                "nl",
+                profile
+        );
+
+        profile.setSettings(settings);
+
         ProfileEntity createdProfile = profileRepository.save(profile);
         return ProfileMapper.toDTO(createdProfile);
     }
@@ -69,7 +80,12 @@ public class ProfileService {
         if (!profileRepository.existsById(id)) {
             throw new ResourceNotFoundException("Profile not found");
         }
-        profileRepository.deleteById(id);
+        try {
+            profileRepository.deleteById(id);
+            profileRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Cannot delete profile: profile still has associated loans or watch history entries");
+        }
     }
 
     public int calculateAge(LocalDate birthDate) {

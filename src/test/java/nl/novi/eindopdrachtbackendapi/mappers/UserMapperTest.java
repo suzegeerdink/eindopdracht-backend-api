@@ -15,7 +15,7 @@ class UserMapperTest {
     @Test
     void toDTO_shouldReturnUserResponseDTO() {
         //Arrange
-        UserEntity userEntity = new UserEntity("johndoe@email.com", "password2020", Role.USER);
+        UserEntity userEntity = new UserEntity("johndoe@email.com");
         userEntity.setId(1L);
 
         //Act
@@ -24,7 +24,6 @@ class UserMapperTest {
         //Assert
         assertEquals(1L, result.getId());
         assertEquals("johndoe@email.com", result.getEmail());
-        assertEquals(Role.USER, result.getRole());
     }
 
     @Test
@@ -32,15 +31,14 @@ class UserMapperTest {
         //Arrange
         UserRequestDTO requestDTO = new UserRequestDTO();
         requestDTO.setEmail("willem@gmail.com");
-        requestDTO.setPassword("123123");
-        requestDTO.setRole(Role.ADMIN);
+
+        String keycloakId = "e20f1cff-b712-4248-bf77-656d48b33310";
 
         //Act
-        UserEntity result = userMapper.toEntity(requestDTO);
+        UserEntity result = userMapper.toEntity(requestDTO, keycloakId);
 
         //Assert
         assertEquals("willem@gmail.com", result.getEmail());
-        assertEquals("123123", result.getPassword());
-        assertEquals(Role.ADMIN, result.getRole());
+        assertEquals(keycloakId, result.getKeycloakId());
     }
 }

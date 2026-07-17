@@ -7,6 +7,7 @@ import nl.novi.eindopdrachtbackendapi.exceptions.DuplicateResourceException;
 import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.UserMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +42,16 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO createUser(UserRequestDTO dto) {
+    public UserResponseDTO createUser(UserRequestDTO dto, String keycloakId) {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new DuplicateResourceException("user already exists");
         }
 
-        UserEntity user = userMapper.toEntity(dto);
+        if (userRepository.findByKeycloakId(keycloakId).isPresent()) {
+            throw new DuplicateResourceException("user profile already exists for this account");
+        }
+
+        UserEntity user = userMapper.toEntity(dto, keycloakId);
         UserEntity createdUser = userRepository.save(user);
         return userMapper.toDTO(createdUser);
     }
@@ -57,8 +62,6 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("user not found"));
 
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
-        user.setRole(dto.getRole());
 
         UserEntity updatedUser = userRepository.save(user);
         return userMapper.toDTO(updatedUser);
@@ -69,6 +72,11 @@ public class UserService {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("user not found");
         }
-        userRepository.deleteById(id);
+        try {
+            userRepository.deleteById(id);
+            userRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Cannot delete user: user still has associated profiles");
+        }
     }
 }

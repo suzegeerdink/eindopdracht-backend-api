@@ -5,13 +5,15 @@ import nl.novi.eindopdrachtbackendapi.dtos.user.UserRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.user.UserResponseDTO;
 import nl.novi.eindopdrachtbackendapi.helpers.UrlHelper;
 import nl.novi.eindopdrachtbackendapi.services.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 @RestController
 @RequestMapping("/users")
@@ -27,8 +29,10 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        UserResponseDTO createdUser = userService.createUser(userRequestDTO);
+    public ResponseEntity<UserResponseDTO> createUser(
+            @Valid @RequestBody UserRequestDTO userRequestDTO,
+            @AuthenticationPrincipal Jwt jwt) {
+        UserResponseDTO createdUser = userService.createUser(userRequestDTO, jwt.getSubject());
         URI location = urlHelper.getCurrentUrlWithId(createdUser.getId());
         return ResponseEntity.created(location).body(createdUser);
     }
@@ -48,7 +52,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequestDTO userRequestDTO) {
         UserResponseDTO updatedUser = userService.updateUser(id, userRequestDTO);
         return ResponseEntity.ok(updatedUser);

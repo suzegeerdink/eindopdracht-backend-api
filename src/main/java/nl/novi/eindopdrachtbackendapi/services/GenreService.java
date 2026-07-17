@@ -7,6 +7,7 @@ import nl.novi.eindopdrachtbackendapi.exceptions.DuplicateResourceException;
 import nl.novi.eindopdrachtbackendapi.exceptions.ResourceNotFoundException;
 import nl.novi.eindopdrachtbackendapi.mappers.GenreMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.GenreRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,11 @@ public class GenreService {
         if (!genreRepository.existsById(id)) {
             throw new ResourceNotFoundException("Genre not found");
         }
-        genreRepository.deleteById(id);
+        try {
+            genreRepository.deleteById(id);
+            genreRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Cannot delete genre: genre is still linked to one or more content items");
+        }
     }
 }

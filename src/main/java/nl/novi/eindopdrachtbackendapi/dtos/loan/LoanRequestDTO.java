@@ -7,8 +7,12 @@ import java.time.LocalDate;
 public class LoanRequestDTO {
     @NotNull
     private Long profileId;
+
     @NotNull
     private Long contentId;
+
+    @NotNull
+    private Boolean loanedOut;
 
     public Long getProfileId() {
         return profileId;
@@ -24,5 +28,13 @@ public class LoanRequestDTO {
 
     public void setContentId(Long contentId) {
         this.contentId = contentId;
+    }
+
+    public Boolean getLoanedOut() {
+        return loanedOut;
+    }
+
+    public void setLoanedOut(Boolean loanedOut) {
+        this.loanedOut = loanedOut;
     }
 }

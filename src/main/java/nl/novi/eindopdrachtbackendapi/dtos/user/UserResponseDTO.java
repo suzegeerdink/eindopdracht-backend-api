@@ -7,7 +7,6 @@ import java.util.Objects;
 public class UserResponseDTO {
     private Long id;
     private String email;
-    private Role role;
 
     public Long getId() {
         return id;
@@ -25,23 +24,16 @@ public class UserResponseDTO {
         this.email = email;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         UserResponseDTO that = (UserResponseDTO) o;
-        return Objects.equals(id, that.id) && Objects.equals(email, that.email) && role == that.role;
+        return Objects.equals(id, that.id) && Objects.equals(email, that.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, role);
+        return Objects.hash(id, email);
     }
 }

@@ -3,7 +3,6 @@ package nl.novi.eindopdrachtbackendapi.services;
 import nl.novi.eindopdrachtbackendapi.dtos.user.UserRequestDTO;
 import nl.novi.eindopdrachtbackendapi.dtos.user.UserResponseDTO;
 import nl.novi.eindopdrachtbackendapi.entities.UserEntity;
-import nl.novi.eindopdrachtbackendapi.enums.Role;
 import nl.novi.eindopdrachtbackendapi.mappers.UserMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -11,14 +10,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -35,13 +35,12 @@ class UserServiceTest {
     @Test
     void getUserById_returnsUserResponseDTO_whenUserExists() {
         //Arrange
-        UserEntity userEntity = new UserEntity("test@email.com", "password", Role.USER);
+        UserEntity userEntity = new UserEntity("test@email.com");
         userEntity.setId(1L);
 
         UserResponseDTO userResponseDTO = new UserResponseDTO();
         userResponseDTO.setId(1L);
-        userResponseDTO.setEmail("test@email");
-        userResponseDTO.setRole(Role.USER);
+        userResponseDTO.setEmail("test@email.com");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
         when(userMapper.toDTO(userEntity)).thenReturn(userResponseDTO);
@@ -67,23 +66,23 @@ class UserServiceTest {
         //Arrange
         UserRequestDTO requestDTO = new UserRequestDTO();
         requestDTO.setEmail("new_user@email.com");
-        requestDTO.setPassword("1234");
-        requestDTO.setRole(Role.USER);
 
-        UserEntity userEntity = new UserEntity("new_user@email.com", "1234", Role.USER);
+        String keycloakId = "df83deaa-70b8-47de-ae60-99424f052819";
 
+        UserEntity userEntity = new UserEntity("new_user@email.com");
+        userEntity.setKeycloakId(keycloakId);
 
         UserResponseDTO userResponseDTO = new UserResponseDTO();
         userResponseDTO.setEmail("new_user@email.com");
-        userResponseDTO.setRole(Role.USER);
 
         when(userRepository.findByEmail("new_user@email.com")).thenReturn(Optional.empty());
-        when(userMapper.toEntity(requestDTO)).thenReturn(userEntity);
+        when(userRepository.findByKeycloakId(keycloakId)).thenReturn(Optional.empty());
+        when(userMapper.toEntity(requestDTO, keycloakId)).thenReturn(userEntity);
         when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
         when(userMapper.toDTO(userEntity)).thenReturn(userResponseDTO);
 
         //Act
-        UserResponseDTO result = userService.createUser(requestDTO);
+        UserResponseDTO result = userService.createUser(requestDTO, keycloakId);
 
         //Assert
         assertEquals(userResponseDTO, result);
@@ -98,25 +97,38 @@ class UserServiceTest {
         when(userRepository.findByEmail("existing@email.com")).thenReturn(Optional.of(new UserEntity()));
 
         //Act & Assert
-        assertThrows(RuntimeException.class, () -> userService.createUser(requestDTO));
+        assertThrows(RuntimeException.class, () -> userService.createUser(requestDTO, "some-keycloak-id"));
+    }
+
+    @Test
+    void createUser_throwsException_whenKeycloakIdAlreadyExists() {
+        //Arrange
+        UserRequestDTO requestDTO = new UserRequestDTO();
+        requestDTO.setEmail("new_user@email.com");
+
+        String keycloakId = "df83deaa-70b8-47de-ae60-99424f052819";
+
+        when(userRepository.findByEmail("new_user@email.com")).thenReturn(Optional.empty());
+        when(userRepository.findByKeycloakId(keycloakId)).thenReturn(Optional.of(new UserEntity()));
+
+        //Act & Assert
+        assertThrows(RuntimeException.class, () -> userService.createUser(requestDTO, keycloakId));
     }
 
     @Test
     void getAllUsers_returnsListOfUserResponseDTOs() {
         //Arrange
-        UserEntity user1 = new UserEntity("user1@email.com", "1234",  Role.USER);
-        UserEntity user2 = new UserEntity("user2@email.com", "5678",  Role.ADMIN);
+        UserEntity user1 = new UserEntity("user1@email.com");
+        UserEntity user2 = new UserEntity("user2@email.com");
         List<UserEntity> users = List.of(user1, user2);
 
         UserResponseDTO userResponseDTO1 = new UserResponseDTO();
         userResponseDTO1.setEmail("user1@email.com");
-        userResponseDTO1.setRole(Role.USER);
 
         UserResponseDTO userResponseDTO2 = new UserResponseDTO();
         userResponseDTO2.setEmail("user2@email.com");
-        userResponseDTO2.setRole(Role.ADMIN);
 
-        when(userRepository.findAll()).thenReturn(users);
+        when(userRepository.findAll(Sort.by("id"))).thenReturn(users);
         when(userMapper.toDTO(user1)).thenReturn(userResponseDTO1);
         when(userMapper.toDTO(user2)).thenReturn(userResponseDTO2);
 
@@ -129,4 +141,77 @@ class UserServiceTest {
         assertEquals(userResponseDTO2, result.get(1));
     }
 
+    @Test
+    void updateUser_returnsUpdatedUserResponseDTO_whenUserExists() {
+        //Arrange
+        UserEntity existingUser = new UserEntity("old@email.com");
+        existingUser.setId(1L);
+
+        UserRequestDTO requestDTO = new UserRequestDTO();
+        requestDTO.setEmail("new@email.com");
+
+        UserEntity updatedUser = new UserEntity("new@email.com");
+        updatedUser.setId(1L);
+
+        UserResponseDTO userResponseDTO = new UserResponseDTO();
+        userResponseDTO.setId(1L);
+        userResponseDTO.setEmail("new@email.com");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(existingUser)).thenReturn(updatedUser);
+        when(userMapper.toDTO(updatedUser)).thenReturn(userResponseDTO);
+
+        //Act
+        UserResponseDTO result = userService.updateUser(1L, requestDTO);
+
+        //Assert
+        assertEquals(userResponseDTO, result);
+        assertEquals("new@email.com", existingUser.getEmail());
+    }
+
+    @Test
+    void updateUser_throwsException_whenUserNotFound() {
+        //Arrange
+        UserRequestDTO requestDTO = new UserRequestDTO();
+        requestDTO.setEmail("new@email.com");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        //Act & Assert
+        assertThrows(RuntimeException.class, () -> userService.updateUser(1L, requestDTO));
+    }
+
+    @Test
+    void deleteUser_deletesUser_whenUserExists() {
+        //Arrange
+        when(userRepository.existsById(1L)).thenReturn(true);
+
+        //Act
+        userService.deleteUser(1L);
+
+        //Assert
+        verify(userRepository).deleteById(1L);
+        verify(userRepository).flush();
+    }
+
+    @Test
+    void deleteUser_throwsException_whenUserNotFound() {
+        //Arrange
+        when(userRepository.existsById(1L)).thenReturn(false);
+
+        //Act & Assert
+        assertThrows(RuntimeException.class, () -> userService.deleteUser(1L));
+        verify(userRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void deleteUser_throwsIllegalStateException_whenUserHasAssociatedProfiles() {
+        //Arrange
+        when(userRepository.existsById(1L)).thenReturn(true);
+        doThrow(new DataIntegrityViolationException("constraint violation"))
+                .when(userRepository).flush();
+
+        //Act & Assert
+        assertThrows(IllegalStateException.class, () -> userService.deleteUser(1L));
+    }
 }
