@@ -8,7 +8,6 @@ import nl.novi.eindopdrachtbackendapi.helpers.ContentDeletionHelper;
 import nl.novi.eindopdrachtbackendapi.mappers.ContentMapper;
 import nl.novi.eindopdrachtbackendapi.repositories.ContentRepository;
 import nl.novi.eindopdrachtbackendapi.repositories.GenreRepository;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
